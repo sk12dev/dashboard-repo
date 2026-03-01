@@ -1,0 +1,11 @@
+# /etc/logrotate.d/oxidized
+# rotate oxidized log
+/etc/oxidized/*.log {
+    weekly
+    create 0644 oxidized oxidized
+    rotate 6
+    nocompress
+    postrotate
+      /sbin/service oxidized restart > /dev/null 2>/dev/null || true
+    endscript
+}

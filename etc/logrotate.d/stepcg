@@ -1,0 +1,13 @@
+# /etc/logrotate.d/stepcg
+# rotate syslog messages
+/opt/www/syslog/*.log {
+        rotate 90
+        size 10M
+        nocompress
+        missingok
+        sharedscripts
+        notifempty
+        postrotate
+                invoke-rc.d syslog-ng reload > /dev/null
+        endscript
+}

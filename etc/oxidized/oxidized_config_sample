@@ -1,0 +1,95 @@
+---
+username: rwa
+password: rwa
+model: voss
+# Interval to retrieve configurations
+interval: 86400
+log: /etc/oxidized/oxidized.log
+use_syslog: false
+debug: false
+threads: 30
+timeout: 120
+retries: 3
+prompt: !ruby/regexp /^([\w.@-]+[#>]\s?)$/
+# what ip address to listen to for web interface
+rest: 127.0.0.1:8888/configs
+#vars: {}
+vars:
+  tftpserver: 192.168.1.229
+groups: {}
+pid: "/etc/oxidized/oxidized.pid"
+
+input:
+  default: ssh, telnet
+  debug: false
+  ssh:
+    secure: false
+
+output:
+  default: git
+  git:
+    user: oxidized
+    email: dcox@stepcg.com
+#    single_repo: true
+    repo: "/etc/oxidized/data/devices.git"
+
+#source:
+#  default: csv
+#  csv:
+#    file: /etc/oxidized/router.db
+#    delimiter: !ruby/regexp /:/
+#    map:
+#      name: 0
+#      model: 1
+#      group: 2
+#      username: 3
+#      password: 4
+
+source:
+  default: http
+  http:
+    url: https://127.0.0.1/dashboard/api/v0/oxidized
+    scheme: https
+    secure: false
+    delimiter: !ruby/regexp /:/
+    map:
+      name: hostname
+      model: os
+      group: group
+    headers:
+      X-Auth-Token: '49bdd9285fbdc1b809d701e6014dc657'
+
+# you can either map username to model or group but not both
+# map username/password to model
+models:
+  voss:
+    username: rwa
+    password: rwa
+  boss:
+    username: RW
+    password: securepasswd
+  procurve:
+    username: swmin
+    password: somepassword
+  xos:
+    username: admin
+    password: somepassword
+
+# map username/password to group
+#groups:
+#  dhs:
+#    username: RW
+#    password: securepasswd
+#  dms:
+#    username: RW
+#    password: securepassword
+#  core:
+#    username: rwa
+#    password: rwa
+
+# map device to <model>.rb file
+model_map:
+  voss: voss
+  boss: boss
+  xos: xos
+  procurve: procurve

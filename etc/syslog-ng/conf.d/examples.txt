@@ -1,0 +1,161 @@
+# write template to file
+# template t_filetemplate { template("${DATE} faclity=${FACILITY} level=${LEVEL} host=${HOST} msgid=${MSGID} pid=${PID} program=${PROGRAM} msghdr=${MSGHDR} msgonly=${MSGONLY}\n"); };
+# make a template so it can be read by PimpMyLog
+#template t_filetemplate { template("${DATE} ${FACILITY} ${LEVEL} ${SOURCEIP} ${MSGHDR} ${MSGONLY}\n"); };
+template t_filetemplate { template("${R_DATE} ${FACILITY} ${LEVEL} ${SOURCEIP} ${MSGHDR} ${MSGONLY}\n"); };
+
+# log localhost and STOP
+filter f_localhost { netmask( "127.0.0.1/32" ); };
+destination df_localhost { file("/opt/syslog/localhost.log" template(t_filetemplate)); };
+log { source ( s_src ); filter( f_localhost ); destination ( df_localhost ); flags(final); };
+
+# log all 
+filter f_allhosts { netmask( "0.0.0.0/0" ); };
+destination df_all { file("/opt/syslog/all.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_allhosts ); destination ( df_all ); };
+
+# filter IDE Ignition server logs
+filter f_ignition_access{ match("^catId=" value("PROGRAM")) and match("^msgId=" value("MESSAGE")) and match("ADDomainAsset=" value("MESSAGE")); };
+destination df_ignition_access { file("/opt/www/syslog/ignition_access.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ignition_access ); destination ( df_ignition_access ); flags(final);  };
+
+filter f_ignition_inbound{ match("^catId=" value("PROGRAM")) and match("^msgId=" value("MESSAGE")) and match("txnInfo=InboundAttributes" value("MESSAGE")); };
+destination df_ignition_inbound { file("/opt/www/syslog/ignition_inbound.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ignition_inbound ); destination ( df_ignition_inbound ); flags(final);  };
+
+filter f_ignition_outbound{ match("^catId=" value("PROGRAM")) and match("^msgId=" value("MESSAGE")) and match("txnInfo=OutboundAttributes" value("MESSAGE")); };
+destination df_ignition_outbound { file("/opt/www/syslog/ignition_outbound.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ignition_outbound ); destination ( df_ignition_outbound ); flags(final);  };
+
+filter f_ignition_auth{ match("^catId=" value("PROGRAM")) and match("^msgId=" value("MESSAGE")) and match("txnInfo=AuthInformation" value("MESSAGE")); };
+destination df_ignition_auth { file("/opt/www/syslog/ignition_auth.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ignition_auth ); destination ( df_ignition_auth ); flags(final);  };
+
+filter f_ignition{ match("^catId=" value("PROGRAM")) and match("^msgId=" value("MESSAGE")); };
+destination df_ignition { file("/opt/www/syslog/ignition.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ignition ); destination ( df_ignition ); flags(final);  };
+
+# filter VOSS cli commands via a string match and STOP
+filter f_voss_cli{ match(" CLILOG " value("MESSAGE")); };
+destination df_voss_cli { file("/opt/syslog/voss_cli.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_voss_cli ); destination ( df_voss_cli ); flags(final); };
+
+# filter spbm 
+filter f_spbm{ match("SPBM" value("MESSAGE")); };
+destination df_spbm { file("/opt/syslog/spbm.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_spbm ); destination ( df_spbm ); };
+
+# filter ospf 
+filter f_ospf{ match("OSPF" value("MESSAGE")); };
+destination df_ospf { file("/opt/syslog/ospf.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_ospf ); destination ( df_ospf ); };
+
+# filter voss logs because they always start with CP via a string match
+filter f_voss{ match("^CP" value("MSGHDR")) or match("^IO" value("MSGHDR")); };
+destination df_voss { file("/opt/syslog/voss.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_voss ); destination ( df_voss ); flags(final); };
+
+# filter BOSS cli commands via a string match and STOP
+filter f_boss_cli{ 
+   match("^CLIAUDIT" value("PROGRAM"))
+or match(" CLIAUDIT:" value("MESSAGE"));
+};
+destination df_boss_cli { file("/opt/syslog/boss_cli.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_boss_cli ); destination ( df_boss_cli ); flags(final);  };
+
+# filter BOSS cli commands via a string match and STOP
+filter f_boss{
+   match("ACG" value("PROGRAM"))
+or match(" ACG:" value("MESSAGE"))
+or match("FAA" value("PROGRAM"))
+or match(" FAA:" value("MESSAGE"))
+or match("EAP" value("PROGRAM"))
+or match(" EAP:" value("MESSAGE"))
+or match("GBIC" value("PROGRAM"))
+or match(" GBIC:" value("MESSAGE"))
+or match("MCFG" value("PROGRAM"))
+or match(" MCFG:" value("MESSAGE"))
+or match("L3MGR" value("PROGRAM"))
+or match(" L3MGR:" value("MESSAGE"))
+or match("NTP" value("PROGRAM"))
+or match(" NTP:" value("MESSAGE"))
+or match(" OOBMGMTID:" value("MESSAGE"))
+or match("POL" value("PROGRAM"))
+or match(" POL:" value("MESSAGE"))
+or match("TELNET" value("PROGRAM"))
+or match(" TELNET:" value("MESSAGE"))
+or match("SNMP" value("PROGRAM"))
+or match(" SNMP:" value("MESSAGE"))
+or match("SNTP" value("PROGRAM"))
+or match(" SNTP:" value("MESSAGE"))
+or match("SSH" value("PROGRAM"))
+or match(" SSH:" value("MESSAGE"))
+or match("SLAMON" value("PROGRAM"))
+or match(" SLAMON:" value("MESSAGE"))
+or match("VLACP" value("PROGRAM"))
+or match(" VLACP:" value("MESSAGE"));
+};
+destination df_boss { file("/opt/syslog/boss.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_boss ); destination ( df_boss ); flags(final);  };
+
+# filter local0 and stop
+filter f_local0 { facility(local0); };
+destination df_local0 { file("/opt/syslog/local0.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local0 ); destination ( df_local0 ); flags(final); };
+
+# filter local1 and stop
+filter f_local1 { facility(local1); };
+destination df_local1 { file("/opt/syslog/local1.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local1 ); destination ( df_local1 ); flags(final); };
+
+# filter local2 and stop
+filter f_local2 { facility(local2); };
+destination df_local2 { file("/opt/syslog/local2.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local2 ); destination ( df_local2 ); flags(final); };
+
+# filter local3 and stop
+filter f_local3 { facility(local3); };
+destination df_local3 { file("/opt/syslog/local3.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local3 ); destination ( df_local3 ); flags(final); };
+
+# filter local4 and stop
+filter f_local4 { facility(local4); };
+destination df_local4 { file("/opt/syslog/local4.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local4 ); destination ( df_local4 ); flags(final); };
+
+# filter local5 and stop
+filter f_local5 { facility(local5); };
+destination df_local5 { file("/opt/syslog/local5.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local5 ); destination ( df_local5 ); flags(final); };
+
+# filter local6 and stop
+filter f_local6 { facility(local6); };
+destination df_local6 { file("/opt/syslog/local6.log" template(t_filetemplate)); };
+log { source ( s_net ); filter( f_local6 ); destination ( df_local6 ); flags(final); };
+
+# filter local7 and stop
+filter f_local7 { facility(local7); };
+destination df_local7 { file("/opt/syslog/local7.log" template(t_filetemplate)); };
+#log { source ( s_net ); filter( f_local7 ); destination ( df_local7 ); flags(final); };
+#log { source ( src ); filter( f_local7 ); destination ( d_smtp ); };
+log { source ( s_net ); filter( f_local7 ); destination ( df_local7 ); flags(final); };
+
+# log all that did not match local 1-7 and stop
+destination df_not_local1-7 { file("/opt/syslog/not_local1-7.log" template(t_filetemplate)); };
+log { source ( s_snet ); filter( f_allhosts ); destination ( df_not_local1-7 ); flags(final); };
+
+# filter wap
+#filter f_wap { match("Station" value("MESSAGE")); };
+#destination df_wap { file("/opt/syslog/wap.log" template(t_filetemplate)); };
+#log { source ( s_net ); filter( f_wap ); destination ( df_wap ); flags(final); };
+
+destination d_smtp {
+    smtp(
+        host("localhost")
+        port(25)
+        from("syslog-ng alert service" "dcox@stepcg.com")
+        to("Admin #1" "danielcoxman@gmail.com")
+        subject("[ALERT] Important log message of $LEVEL condition received from $HOST/$PROGRAM!")
+        body("Hi!\nThe syslog-ng alerting service detected the following important log message:\n $MSG\n-- \nsyslog-ng\n")
+    );
+};

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Wizard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --surface: #1a2332;
+            --surface-elevated: #242f3f;
+            --border: #2d3a4d;
+            --text: #e6edf3;
+            --text-muted: #8b9eb5;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --success: #22c55e;
+            --error: #ef4444;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .wizard-branding {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .wizard-wrapper {
+            width: 100%;
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wizard-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.wizard-step--active {
+            display: block;
+        }
+
+        .wizard-header {
+            margin-bottom: 2rem;
+        }
+
+        .wizard-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .wizard-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .wizard-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+            font-size: 0.95rem;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        input.invalid {
+            border-color: var(--error);
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+        input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            gap: 1rem;
+        }
+
+        button[type="submit"],
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .wizard-content .btn {
+            margin-top: 0;
+        }
+
+        button[type="submit"]:hover:not(:disabled),
+        .btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        button[type="submit"]:active:not(:disabled),
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        button[type="submit"]:disabled,
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            min-height: 3rem;
+        }
+
+        #message:not(:empty) {
+            color: var(--text);
+        }
+
+        #message.error {
+            color: var(--error);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        #message.success {
+            color: var(--success);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .terminal {
+            margin-top: 1.5rem;
+            padding: 1rem 1.25rem;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--success);
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: none;
+        }
+
+        .terminal.visible {
+            display: block;
+        }
+
+        .wizard-steps-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .wizard-steps-indicator__item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .wizard-steps-indicator__item::after {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .wizard-steps-indicator__item:last-child::after {
+            display: none;
+        }
+
+        .wizard-steps-indicator__item.wizard-steps-indicator__current {
+            color: var(--accent);
+        }
+
+        .wizard-steps-indicator__item.wizard-steps-indicator__current::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-right: 0.25rem;
+        }
+
+        .wizard-steps-indicator__item.wizard-steps-indicator__current::after {
+            background: var(--border);
+        }
+
+        .wizard-steps-indicator__item.wizard-steps-indicator__done {
+            color: var(--text-muted);
+        }
+
+        .wizard-steps-indicator__item.wizard-steps-indicator__done::before {
+            content: '✓';
+            font-size: 0.75rem;
+            margin-right: 0.15rem;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <header class="wizard-branding" aria-hidden="true">STEP Dashboard Setup</header>
+
+    <div class="wizard-wrapper">
+        <div class="wizard-card">
+            <section class="wizard-step" id="step-1" data-step="1">
+                <header class="wizard-header">
+                    <h1 class="wizard-title" id="step1Title">Network Configuration</h1>
+                    <p class="wizard-subtitle" id="step1Subtitle">Step 1: Set the static IP address for this server</p>
+                </header>
+
+                <form id="networkForm" onsubmit="submitNetworkChange(event)">
+                    <div class="form-group">
+                        <label for="ip_address">IP Address</label>
+                        <input type="text" id="ip_address" name="ip_address" placeholder="192.168.1.50" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gateway">Gateway</label>
+                        <input type="text" id="gateway" name="gateway" placeholder="192.168.1.1" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subnet_mask">Subnet Mask</label>
+                        <input type="text" id="subnet_mask" name="subnet_mask" placeholder="255.255.255.0" required autocomplete="off" title="Subnet mask in dotted decimal (e.g., 255.255.255.0)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dns">DNS Servers</label>
+                        <input type="text" id="dns" name="dns" placeholder="8.8.8.8, 1.1.1.1" required autocomplete="off" title="Comma-separated DNS servers">
+                    </div>
+
+                    <button type="submit" id="submitBtn">Apply Network Settings</button>
+                </form>
+                <div id="message" role="status" aria-live="polite"></div>
+            </section>
+
+            <section class="wizard-step" id="step-2" data-step="2">
+                <header class="wizard-header">
+                    <h1 class="wizard-title" id="step2Title">LibreNMS Installation</h1>
+                    <p class="wizard-subtitle" id="step2Subtitle">Step 2: Your network is configured. Click below to begin the system installation.</p>
+                </header>
+
+                <div class="wizard-content">
+                    <button type="button" id="startBtn" class="btn" onclick="startInstall()">Start Installation</button>
+                </div>
+
+                <pre id="terminal" class="terminal" role="log" aria-live="polite"></pre>
+            </section>
+
+            <nav class="wizard-steps-indicator" aria-label="Wizard steps" id="stepsIndicator"></nav>
+        </div>
+    </div>
+
+    <script>
+        const WIZARD_STEPS = [
+            { title: 'Network', subtitle: 'Set the static IP address for this server' },
+            { title: 'Installation', subtitle: 'Your network is configured. Click below to begin the system installation.' }
+        ];
+
+        const TOTAL_STEPS = WIZARD_STEPS.length;
+
+        function getCurrentStep() {
+            const step = parseInt(new URLSearchParams(location.search).get('step') || '1', 10);
+            return Math.max(1, Math.min(step, TOTAL_STEPS));
+        }
+
+        function renderStepIndicator(currentStep) {
+            const nav = document.getElementById('stepsIndicator');
+            nav.innerHTML = '';
+            WIZARD_STEPS.forEach((config, index) => {
+                const num = index + 1;
+                const item = document.createElement('span');
+                item.className = 'wizard-steps-indicator__item';
+                item.setAttribute('aria-current', num === currentStep ? 'step' : null);
+                if (num < currentStep) item.classList.add('wizard-steps-indicator__done');
+                if (num === currentStep) item.classList.add('wizard-steps-indicator__current');
+                item.textContent = `Step ${num}: ${config.title}`;
+                nav.appendChild(item);
+            });
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(function (panel) {
+                panel.classList.toggle('wizard-step--active', parseInt(panel.getAttribute('data-step'), 10) === step);
+            });
+            renderStepIndicator(step);
+            const config = WIZARD_STEPS[step - 1];
+            if (config) {
+                document.title = config.title + ' - Setup Wizard';
+            }
+        }
+
+        function initWizard() {
+            const step = getCurrentStep();
+            showStep(step);
+            document.getElementById('networkForm').addEventListener('input', function (e) {
+                if (e.target.id && ['ip_address', 'gateway', 'subnet_mask', 'dns'].indexOf(e.target.id) !== -1) {
+                    e.target.classList.remove('invalid');
+                }
+            });
+        }
+
+        initWizard();
+
+        function isValidIPv4(str) {
+            var s = (str || '').trim();
+            var parts = s.split('.');
+            if (parts.length !== 4) return false;
+            for (var i = 0; i < 4; i++) {
+                var p = parts[i];
+                if (p === '') return false;
+                var n = parseInt(p, 10);
+                if (isNaN(n) || n < 0 || n > 255) return false;
+                if (String(n) !== p) return false;
+            }
+            return true;
+        }
+
+        function isValidSubnetMask(str) {
+            var s = (str || '').trim();
+            var parts = s.split('.');
+            if (parts.length !== 4) return false;
+            for (var i = 0; i < 4; i++) {
+                var p = parts[i];
+                if (p === '') return false;
+                var n = parseInt(p, 10);
+                if (isNaN(n) || n < 0 || n > 255) return false;
+                if (String(n) !== p) return false;
+            }
+            var a = parseInt(parts[0], 10), b = parseInt(parts[1], 10), c = parseInt(parts[2], 10), d = parseInt(parts[3], 10);
+            var m = ((a << 24) | (b << 16) | (c << 8) | d) >>> 0;
+            if (m === 0) return true;
+            return ((m | (m - 1)) >>> 0) === 0xFFFFFFFF;
+        }
+
+        function isValidDnsList(str) {
+            var s = (str || '').trim();
+            if (s === '') return false;
+            var parts = s.split(',').map(function (p) { return p.trim(); }).filter(Boolean);
+            if (parts.length === 0) return false;
+            for (var i = 0; i < parts.length; i++) {
+                if (!isValidIPv4(parts[i])) return false;
+            }
+            return true;
+        }
+
+        function validateNetworkForm() {
+            var ip = document.getElementById('ip_address');
+            var gateway = document.getElementById('gateway');
+            var subnet = document.getElementById('subnet_mask');
+            var dns = document.getElementById('dns');
+            var errors = [];
+            ip.classList.remove('invalid');
+            gateway.classList.remove('invalid');
+            subnet.classList.remove('invalid');
+            dns.classList.remove('invalid');
+            if (!isValidIPv4(ip.value)) {
+                errors.push('IP Address must be a valid IPv4 address (e.g. 192.168.1.50).');
+                ip.classList.add('invalid');
+            }
+            if (!isValidIPv4(gateway.value)) {
+                errors.push('Gateway must be a valid IPv4 address (e.g. 192.168.1.1).');
+                gateway.classList.add('invalid');
+            }
+            if (!isValidSubnetMask(subnet.value)) {
+                errors.push('Subnet mask must be a valid dotted-decimal mask (e.g. 255.255.255.0).');
+                subnet.classList.add('invalid');
+            }
+            if (!isValidDnsList(dns.value)) {
+                errors.push('DNS Servers must be one or more valid IPv4 addresses, comma-separated (e.g. 8.8.8.8, 1.1.1.1).');
+                dns.classList.add('invalid');
+            }
+            return errors;
+        }
+
+        async function submitNetworkChange(event) {
+            event.preventDefault();
+
+            var msgDiv = document.getElementById('message');
+            var btn = document.getElementById('submitBtn');
+
+            var validationErrors = validateNetworkForm();
+            if (validationErrors.length > 0) {
+                msgDiv.className = 'error';
+                msgDiv.textContent = validationErrors.join(' ');
+                return;
+            }
+
+            var form = document.getElementById('networkForm');
+            var formData = new FormData(form);
+
+            btn.disabled = true;
+            msgDiv.textContent = 'Saving configuration...';
+            msgDiv.className = '';
+
+            try {
+                const response = await fetch('apply_network.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    msgDiv.className = 'success';
+                    let seconds = 15;
+
+                    const timer = setInterval(function () {
+                        msgDiv.textContent = 'Network changing. Redirecting to ' + result.new_ip + ' in ' + seconds + ' seconds...';
+                        seconds--;
+
+                        if (seconds < 0) {
+                            clearInterval(timer);
+                            msgDiv.textContent = 'Redirecting now...';
+                            window.location.href = 'http://' + result.new_ip + '/?step=2';
+                        }
+                    }, 1000);
+                } else {
+                    msgDiv.className = 'error';
+                    msgDiv.textContent = 'Error: ' + result.message;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                msgDiv.textContent = 'Connection lost. This is normal if the IP changed successfully. Waiting to redirect...';
+            }
+        }
+
+        async function startInstall() {
+            const btn = document.getElementById('startBtn');
+            const terminal = document.getElementById('terminal');
+
+            btn.disabled = true;
+            btn.textContent = 'Installing...';
+            terminal.classList.add('visible');
+            terminal.textContent = 'Initializing setup...\n';
+
+            await fetch('start_install.php');
+
+            const pollInterval = setInterval(async function () {
+                try {
+                    const response = await fetch('read_log.php');
+                    const text = await response.text();
+
+                    terminal.textContent = text;
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                    if (text.includes('LIBRENMS_SETUP_COMPLETE')) {
+                        clearInterval(pollInterval);
+                        btn.textContent = 'Installation Complete!';
+                        alert('Installation finished! Ready to redirect to LibreNMS.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching log:', error);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
