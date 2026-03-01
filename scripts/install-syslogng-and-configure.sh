@@ -28,7 +28,7 @@ mysql -u root -p -e "CREATE DATABASE ilog;"
 mysql -u root -p -e "CREATE USER 'ilog'@'localhost' IDENTIFIED BY 'ilogpassword';"
 mysql -u root -p -e "GRANT ALL PRIVILEGES ON ilog.* TO 'ilog'@'localhost';"
 mysql -u root -p -e "FLUSH PRIVILEGES;"
-mysql -u root -p ilog < /opt/step-git/etc/syslog-ng/create_ilog_db.sql
+mysql -u root -p ilog < /opt/dashboard-v2/etc/syslog-ng/create_ilog_db.sql
 
 
 echo "Restarting syslog-ng..."
