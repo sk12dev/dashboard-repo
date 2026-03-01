@@ -265,8 +265,10 @@ echo "####################################"
 echo
 apt-get install -y syslog-ng
 
+
+
 echo "Copying the STEP Specific syslog-ng configuration files"
-cp -r /opt/dashboard-v2/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
+#cp -r /opt/dashboard-v2/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
 
 echo "Creating SQL database for syslog-ng"
 mysql -u root -p$DATABASEPASSWORD < /opt/dashboard-v2/ref_image_build/etc/syslog-ng/create_ilog_db.sql
