@@ -11,6 +11,7 @@ DASH_SUFFIX="-dashboard"
 HOSTS_PATH="/etc/hosts"
 HOSTNAME_PATH="/etc/hostname"
 DELIMITER="."
+USERNAME="stepcg"
 
 # Function to check the status of the last command
 check_status() {
@@ -31,41 +32,31 @@ print_notice() {
     echo -e "##########################################################################################\n"
 }
 
-
-
-
-
 print_notice "Updating APT repositories..."
 apt-get update -y
 sleep 2
 
-
 # Create scripts
 print_notice "Setting up the scripts directory and creating Let's Encrypt script files."
-if [ ! -d "/home/stepcg/scripts" ]; then
-    mkdir /home/stepcg/scripts
+if [ ! -d "/home/$USERNAME/scripts" ]; then
+    mkdir /home/$USERNAME/scripts
     check_status
 fi
-if [ ! -f "/home/stepcg/scripts/authenticator.sh" ]; then
-    touch /home/stepcg/scripts/authenticator.sh
+if [ ! -f "/home/$USERNAME/scripts/authenticator.sh" ]; then
+    touch /home/$USERNAME/scripts/authenticator.sh
     check_status
 fi
-if [ ! -f "/home/stepcg/scripts/cleanup.sh" ]; then
-    touch /home/stepcg/scripts/cleanup.sh
+if [ ! -f "/home/$USERNAME/scripts/cleanup.sh" ]; then
+    touch /home/$USERNAME/scripts/cleanup.sh
     check_status
 fi
-chmod +x /home/stepcg/scripts/authenticator.sh
+chmod +x /home/$USERNAME/scripts/authenticator.sh
 check_status
-chmod +x /home/stepcg/scripts/cleanup.sh
+chmod +x /home/$USERNAME/scripts/cleanup.sh
 check_status
-
 
 print_notice "Setup operations concluded."
 sleep 1
-
-
-
-
 
 # This is the magic string our JavaScript is looking for!
 echo "LIBRENMS_SETUP_COMPLETE"

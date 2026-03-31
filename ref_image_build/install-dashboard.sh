@@ -258,10 +258,10 @@ apt-get install -y syslog-ng
 
 
 echo "Copying the STEP Specific syslog-ng configuration files"
-#cp -r /opt/dashboard-v2/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
+#cp -r /opt/dashboard-repo/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
 
 echo "Creating SQL database for syslog-ng"
-mysql -u root -p$DATABASEPASSWORD < /opt/dashboard-v2/ref_image_build/etc/syslog-ng/create_ilog_db.sql
+mysql -u root -p$DATABASEPASSWORD < /opt/dashboard-repo/ref_image_build/etc/syslog-ng/create_ilog_db.sql
 
 
 echo "Restarting syslog-ng..."
@@ -282,22 +282,41 @@ echo "####################################################"
 echo "Installing and Configuring Customer Web Installer"
 echo "####################################################"
 # TO DO: Install and configure Customer Web Installer
-mkdir -p /opt/www/customer-web-installer
-chown -R www-data:www-data /opt/www/customer-web-installer
-chmod -R 755 /opt/www/customer-web-installer
-cp -r /opt/dashboard-v2/ref_image_build/etc/customer-web-installer/. /opt/www/customer-web-installer/
-chown -R www-data:www-data /opt/www/customer-web-installer
-chmod -R 755 /opt/www/customer-web-installer
+mkdir -p /opt/customer-web-installer
+chown -R www-data:www-data /opt/customer-web-installer
+chmod -R 755 /opt/customer-web-installer
+cp -r /opt/dashboard-repo/ref_image_build/customer-web-installer/. /opt/customer-web-installer/
+chown -R www-data:www-data /opt/customer-web-installer
+chmod -R 755 /opt/customer-web-installer
 #Copy sudoers file for customer-web-installer
-cp -r /opt/dashboard-v2/ref_image_build/etc/sudoers.d/. /etc/sudoers.d/
+cp -r /opt/dashboard-repo/ref_image_build/etc/sudoers.d/. /etc/sudoers.d/
 chown root:root /etc/sudoers.d/
 #Add the website config to the Nginx configuration
 cat << EOF > /etc/nginx/conf.d/customer-web-installer.conf
 server {
- listen 80;
- server_name customer-web-installer;
- root /opt/www/customer-web-installer/html;
- index index.php;
+    # Listen on port 80 and make this the default site
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # Point to our wizard directory
+    root /opt/customer-web-installer/;
+
+    # Look for index.html first
+    index index.html;
+
+    # Catch-all server name for when accessed via IP
+    server_name _;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    # Pass PHP scripts to PHP-FPM
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        # Ubuntu 24.04 uses PHP 8.3 by default
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+    }
 }
 EOF
 
