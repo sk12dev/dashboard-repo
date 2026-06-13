@@ -25,6 +25,10 @@ read WEBSERVERHOSTNAME
 echo "Please enter the Database password for the LibreNMS server: "
 read DATABASEPASSWORD
 
+echo "Please enter the password for the librenms user: "
+read -s LIBRENMS_PASSWORD
+echo
+
 echo
 echo "############################"
 echo "Installing required packages"
@@ -41,6 +45,7 @@ echo "######################"
 echo
 
 useradd librenms -d /opt/librenms -M -r -s "$(which bash)"
+echo "librenms:${LIBRENMS_PASSWORD}" | chpasswd
 
 echo "###########################"
 echo "Cloning LibreNMS repository"
@@ -72,18 +77,48 @@ su - librenms -c "/opt/librenms/scripts/composer_wrapper.php install --no-dev"
 
 echo
 echo "########################"
+echo "Select timezone (US)"
+echo "########################"
+echo "  1) Eastern       (America/New_York)"
+echo "  2) Central       (America/Chicago)"
+echo "  3) Mountain      (America/Denver)"
+echo "  4) Arizona       (America/Phoenix)"
+echo "  5) Pacific       (America/Los_Angeles)"
+echo "  6) Alaska        (America/Anchorage)"
+echo "  7) Hawaii        (Pacific/Honolulu)"
+echo "  8) Puerto Rico   (America/Puerto_Rico)"
+echo "  9) Guam          (Pacific/Guam)"
+while true; do
+  read -p "Enter choice [1-9] (default 1): " TZ_CHOICE
+  TZ_CHOICE=${TZ_CHOICE:-1}
+  case "$TZ_CHOICE" in
+    1) TIMEZONE="America/New_York"; break ;;
+    2) TIMEZONE="America/Chicago"; break ;;
+    3) TIMEZONE="America/Denver"; break ;;
+    4) TIMEZONE="America/Phoenix"; break ;;
+    5) TIMEZONE="America/Los_Angeles"; break ;;
+    6) TIMEZONE="America/Anchorage"; break ;;
+    7) TIMEZONE="Pacific/Honolulu"; break ;;
+    8) TIMEZONE="America/Puerto_Rico"; break ;;
+    9) TIMEZONE="Pacific/Guam"; break ;;
+    *) echo "Invalid choice. Please enter 1-9." ;;
+  esac
+done
+
+echo
+echo "########################"
 echo "Configuring PHP timezone"
 echo "########################"
 
-sed -i 's|;date.timezone =|date.timezone = America/New_York|' /etc/php/8.3/fpm/php.ini
-sed -i 's|;date.timezone =|date.timezone = America/New_York|' /etc/php/8.3/cli/php.ini
+sed -i "s|;date.timezone =|date.timezone = ${TIMEZONE}|" /etc/php/8.3/fpm/php.ini
+sed -i "s|;date.timezone =|date.timezone = ${TIMEZONE}|" /etc/php/8.3/cli/php.ini
 
 echo
 echo "#############################################"
-echo "Setting system timezone to America/New_York"
+echo "Setting system timezone to ${TIMEZONE}"
 echo "#############################################"
 echo
-timedatectl set-timezone America/New_York
+timedatectl set-timezone "${TIMEZONE}"
 
 echo "############################"
 echo "Configuring MariaDB settings"
@@ -278,11 +313,13 @@ cd /opt/librepulse
 wget https://librepulse.solutionk12.com/scripts/librepulse-heartbeat.sh
 chmod +x /opt/librepulse/librepulse-heartbeat.sh
 
+echo
 echo "####################################################"
 echo "Installing and Configuring STEP NetTools"
 echo "####################################################"
 # TO DO: Install and configure STEP NetTools
 
+echo
 echo "####################################################"
 echo "Installing and Configuring Customer Web Installer"
 echo "####################################################"
