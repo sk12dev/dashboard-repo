@@ -106,5 +106,5 @@ YAML;
 
     // 7. Execute the bash script asynchronously 
     // We use nohup just in case, though fastcgi_finish_request usually protects the child process.
-    shell_exec("nohup sudo /opt/www/customer-web-installer/scripts/apply-network-from-web.sh > /dev/null 2>&1 &");
+    shell_exec("nohup sudo /opt/customer-web-installer/scripts/apply-network-from-web.sh > /dev/null 2>&1 &");
 }
