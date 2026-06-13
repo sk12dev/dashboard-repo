@@ -2,6 +2,8 @@
 // apply_network.php
 //TO DO: Add section to sudo hostnamectl set-hostname <new-hostname> and 
 //update the /etc/hosts file with the new hostname
+require_once __DIR__ . '/network_utils.php';
+
 header('Content-Type: application/json');
 
 /**
@@ -47,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cidr = subnet_mask_to_cidr($subnetMask);
     $gateway = $_POST['gateway'] ?? '';
     $dns = $_POST['dns'] ?? '';
+    $interface = trim($_POST['interface'] ?? '');
 
     // 1. Basic Validation
     if (!filter_var($newIp, FILTER_VALIDATE_IP)) {
@@ -57,15 +60,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(["status" => "error", "message" => "Invalid subnet mask. Use dotted decimal (e.g. 255.255.255.0)"]);
         exit;
     }
+    if ($interface === '' || !is_eligible_ethernet_interface($interface)) {
+        echo json_encode(["status" => "error", "message" => "Invalid network interface selected"]);
+        exit;
+    }
+    if (!filter_var($gateway, FILTER_VALIDATE_IP)) {
+        echo json_encode(["status" => "error", "message" => "Invalid gateway address"]);
+        exit;
+    }
 
     // Format DNS for Netplan (comma separated string into array format)
     $dnsArray = explode(",", $dns);
     $dnsList = implode(",", array_map(function ($d) {
         return '"' . trim($d) . '"';
     }, $dnsArray));
-
-    // Replace 'enp0s3' with the actual network adapter name used in your OVA
-    $interface = "enp0s3";
 
     // 2. Generate Netplan YAML
     $yaml = <<<YAML
