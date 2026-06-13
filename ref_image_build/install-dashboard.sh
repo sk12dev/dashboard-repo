@@ -319,6 +319,8 @@ server {
 }
 EOF
 
+echo "Restarting Nginx..."
+systemctl restart nginx
 
 echo "####################################################"
 echo "Installation and configuration complete"

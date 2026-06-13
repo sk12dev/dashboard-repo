@@ -43,6 +43,39 @@ function subnet_mask_to_cidr($mask)
     return $cidr <= 32 ? $cidr : null;
 }
 
+const APPLY_NETWORK_SCRIPT = '/opt/customer-web-installer/scripts/apply-network-from-web.sh';
+
+/**
+ * Confirm www-data can sudo the apply script and the netplan file is ready.
+ *
+ * @return array{ok: bool, message: string}
+ */
+function verify_network_apply_ready(): array
+{
+    $script = APPLY_NETWORK_SCRIPT;
+
+    if (!is_file($script) || !is_executable($script)) {
+        return [
+            'ok' => false,
+            'message' => 'Network apply script is missing or not executable',
+        ];
+    }
+
+    $cmd = 'sudo -n ' . escapeshellarg($script) . ' --verify 2>&1';
+    exec($cmd, $output, $code);
+
+    if ($code !== 0) {
+        $detail = trim(implode("\n", $output));
+        if ($detail === '') {
+            $detail = 'Unable to run network apply script (sudo permission denied)';
+        }
+
+        return ['ok' => false, 'message' => $detail];
+    }
+
+    return ['ok' => true, 'message' => ''];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newIp = $_POST['ip_address'] ?? '';
     $subnetMask = trim($_POST['subnet_mask'] ?? '255.255.255.0');
@@ -94,25 +127,43 @@ YAML;
 
     // 3. Write to a temporary file (www-data can write to /tmp)
     $tmpFile = '/tmp/99-custom.yaml';
-    file_put_contents($tmpFile, $yaml);
+    if (file_put_contents($tmpFile, $yaml) === false) {
+        echo json_encode(["status" => "error", "message" => "Failed to write network configuration"]);
+        exit;
+    }
 
-    // 4. Send the response to the browser FIRST
+    // 4. Verify sudo access and config before telling the browser to redirect
+    $verify = verify_network_apply_ready();
+    if (!$verify['ok']) {
+        @unlink($tmpFile);
+        echo json_encode(["status" => "error", "message" => $verify['message']]);
+        exit;
+    }
+
+    // 5. Send the response to the browser FIRST
     echo json_encode([
         "status" => "success",
         "new_ip" => $newIp
     ]);
 
-    // 5. Close the connection to the user's browser securely
+    // 6. Close the connection to the user's browser securely
     if (function_exists('fastcgi_finish_request')) {
         // This flushes the output buffer and closes the HTTP connection,
         // but lets the PHP script continue running.
         fastcgi_finish_request();
     }
 
-    // 6. Give Nginx a tiny fraction of a second to fully close the socket
+    // 7. Give Nginx a tiny fraction of a second to fully close the socket
     usleep(500000); // 0.5 seconds
 
-    // 7. Execute the bash script asynchronously 
-    // We use nohup just in case, though fastcgi_finish_request usually protects the child process.
-    shell_exec("nohup sudo /opt/customer-web-installer/scripts/apply-network-from-web.sh > /dev/null 2>&1 &");
+    // 8. Apply network settings synchronously; failures are logged for troubleshooting
+    $applyCmd = 'sudo -n ' . escapeshellarg(APPLY_NETWORK_SCRIPT) . ' 2>&1';
+    exec($applyCmd, $applyOutput, $applyCode);
+    if ($applyCode !== 0) {
+        $detail = trim(implode("\n", $applyOutput));
+        error_log(
+            'Network apply failed (exit ' . $applyCode . '): ' .
+            ($detail !== '' ? $detail : 'no output')
+        );
+    }
 }

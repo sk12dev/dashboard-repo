@@ -9,7 +9,7 @@ file_put_contents($logFile, "Starting LibreNMS Installation Script...\n");
 // > routes stdout to the log
 // 2>&1 routes stderr to stdout (so errors show up in the log too)
 // & puts it in the background
-shell_exec("nohup sudo /opt/www/customer-web-installer/scripts/configure-dashboard-from-web.sh > /tmp/install.log 2>&1 &");
+shell_exec("nohup sudo /opt/customer-web-installer/scripts/configure-dashboard-from-web.sh > /tmp/install.log 2>&1 &");
 
 // Immediately return success to the browser
 echo json_encode(["status" => "started"]);
