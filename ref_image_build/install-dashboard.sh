@@ -270,7 +270,13 @@ echo "Restarting syslog-ng..."
 systemctl restart syslog-ng
 
 
-
+echo "####################################################"
+echo "Installing LibrePulse"
+echo "####################################################"
+mkdir -p /opt/librepulse
+cd /opt/librepulse
+wget https://librepulse.solutionk12.com/scripts/librepulse-heartbeat.sh
+chmod +x /opt/librepulse/librepulse-heartbeat.sh
 
 echo "####################################################"
 echo "Installing and Configuring STEP NetTools"
@@ -325,5 +331,28 @@ systemctl restart nginx
 echo "####################################################"
 echo "Installation and configuration complete"
 echo "####################################################"
+echo ""
+echo "Customer Web Installer"
+echo "----------------------"
+echo "Open the setup wizard in your browser:"
+echo ""
+
+INSTALLER_PORT=8080
+FOUND_IP=0
+
+while IFS= read -r addr; do
+    [[ -z "$addr" ]] && continue
+    FOUND_IP=1
+    echo "  Current IP: ${addr}"
+    echo "  Setup URL:  http://${addr}:${INSTALLER_PORT}/"
+    echo ""
+done < <(ip -4 -o addr show scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | sort -u)
+
+if [[ "$FOUND_IP" -eq 0 ]]; then
+    echo "  No global IPv4 address detected yet."
+    echo "  Check addresses with: ip -4 addr show"
+    echo "  Then open: http://<your-ip>:${INSTALLER_PORT}/"
+    echo ""
+fi
 
 exit 0
