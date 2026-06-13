@@ -48,7 +48,9 @@ echo "###########################"
 echo
 
 cd /opt
-git clone https://github.com/librenms/librenms.git
+git clone https://github.com/sk12dev/librenms.git 
+#'https://github.com/librenms/librenms.git
+
 
 echo
 echo "############################################"
@@ -267,10 +269,7 @@ mysql -u root -p$DATABASEPASSWORD < /opt/dashboard-repo/ref_image_build/etc/sysl
 echo "Restarting syslog-ng..."
 systemctl restart syslog-ng
 
-echo "####################################################"
-echo "Installing and configuring Oxidized"
-echo "####################################################"
-# TO DO: Install and configure Oxidized
+
 
 
 echo "####################################################"
