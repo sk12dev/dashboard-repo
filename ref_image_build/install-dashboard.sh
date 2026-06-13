@@ -294,8 +294,8 @@ chown root:root /etc/sudoers.d/
 cat << EOF > /etc/nginx/conf.d/customer-web-installer.conf
 server {
     # Listen on port 80 and make this the default site
-    listen 80 default_server;
-    listen [::]:80 default_server;
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
 
     # Point to our wizard directory
     root /opt/customer-web-installer/;
