@@ -170,6 +170,44 @@ a:hover {
     color: var(--text-muted);
 }
 
+.device-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 240px;
+    max-width: 320px;
+}
+
+.field-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.select-input {
+    width: 100%;
+    padding: 0.65rem 0.875rem;
+    font-family: var(--font-sans);
+    font-size: 0.92rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.select-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.toolbar--ports {
+    align-items: flex-end;
+}
+
 .stat-pill {
     display: inline-flex;
     align-items: center;
@@ -301,6 +339,48 @@ a:hover {
 .data-table .col-rule {
     width: 28%;
     min-width: 10rem;
+}
+
+.data-table .col-port {
+    width: 14%;
+    min-width: 8rem;
+}
+
+.data-table .col-description {
+    width: 20%;
+    min-width: 8rem;
+}
+
+.data-table .col-speed,
+.data-table .col-traffic,
+.data-table .col-errors,
+.data-table .col-duplex {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.data-table .col-speed {
+    width: 5.5rem;
+}
+
+.data-table .col-traffic {
+    width: 6.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.data-table .col-errors {
+    width: 4.5rem;
+    text-align: right;
+}
+
+.data-table .col-duplex {
+    width: 4.5rem;
+}
+
+.cell-error {
+    color: var(--error);
+    font-weight: 600;
 }
 
 .panel {

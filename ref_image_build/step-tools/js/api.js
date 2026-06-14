@@ -122,3 +122,74 @@ export function severityMeta(severity) {
     }
     return { label: 'OK', className: 'severity-badge--ok' };
 }
+
+export function isPortUp(port) {
+    return String(port.ifOperStatus ?? '').toLowerCase() === 'up';
+}
+
+export function portStatusMeta(port) {
+    const oper = String(port.ifOperStatus ?? 'unknown').toLowerCase();
+    const admin = String(port.ifAdminStatus ?? 'unknown').toLowerCase();
+
+    if (oper === 'up') {
+        return { label: 'Up', className: 'status-dot--up', oper, admin };
+    }
+    if (oper === 'down') {
+        return { label: 'Down', className: 'status-dot--down', oper, admin };
+    }
+    return { label: oper, className: 'status-dot--unknown', oper, admin };
+}
+
+export function formatBitsRate(octetsPerSecond) {
+    const rate = Number(octetsPerSecond);
+    if (!Number.isFinite(rate) || rate <= 0) {
+        return '—';
+    }
+
+    const bps = rate * 8;
+    if (bps >= 1_000_000_000) {
+        return `${(bps / 1_000_000_000).toFixed(2)} Gbps`;
+    }
+    if (bps >= 1_000_000) {
+        return `${(bps / 1_000_000).toFixed(2)} Mbps`;
+    }
+    if (bps >= 1_000) {
+        return `${(bps / 1_000).toFixed(1)} Kbps`;
+    }
+    return `${bps.toFixed(0)} bps`;
+}
+
+export function formatPortSpeed(port) {
+    const highSpeed = Number(port.ifHighSpeed);
+    if (Number.isFinite(highSpeed) && highSpeed > 0) {
+        if (highSpeed >= 1000) {
+            return `${(highSpeed / 1000).toFixed(highSpeed % 1000 === 0 ? 0 : 1)} Gbps`;
+        }
+        return `${highSpeed} Mbps`;
+    }
+
+    const speed = Number(port.ifSpeed);
+    if (!Number.isFinite(speed) || speed <= 0) {
+        return '—';
+    }
+    if (speed >= 1_000_000_000) {
+        return `${(speed / 1_000_000_000).toFixed(2)} Gbps`;
+    }
+    if (speed >= 1_000_000) {
+        return `${(speed / 1_000_000).toFixed(0)} Mbps`;
+    }
+    return `${speed} bps`;
+}
+
+export function deviceQueryId(device) {
+    return String(device.device_id || device.hostname || '');
+}
+
+export function deviceLabel(device) {
+    if (!device) {
+        return '';
+    }
+    const name = device.sysName || device.hostname || deviceQueryId(device);
+    const ip = deviceIp(device);
+    return ip && ip !== name ? `${name} (${ip})` : name;
+}

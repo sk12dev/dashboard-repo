@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Device Inventory — STEP NetTools</title>
+    <title>Port Explorer — STEP NetTools</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -15,51 +15,55 @@
             <a class="brand" href="index.html"><span class="brand-mark">STEP</span> NetTools</a>
             <nav class="header-nav">
                 <a class="nav-link" href="index.html">Tools</a>
-                <a class="nav-link is-active" href="devices.html">Devices</a>
+                <a class="nav-link" href="devices.html">Devices</a>
                 <a class="nav-link" href="alerts.html">Alerts</a>
-                <a class="nav-link" href="ports.html">Ports</a>
+                <a class="nav-link is-active" href="ports.html">Ports</a>
             </nav>
         </header>
 
         <main class="app-main">
             <div class="page-header">
-                <h1 class="page-title">Device Inventory</h1>
-                <p class="page-subtitle">Live device list from LibreNMS with sortable columns and quick search.</p>
+                <h1 class="page-title">Port Explorer</h1>
+                <p class="page-subtitle">Inspect interface status, speed, and traffic rates for any monitored device.</p>
             </div>
 
-            <div class="toolbar">
+            <div class="toolbar toolbar--ports">
+                <div class="device-picker">
+                    <label class="field-label" for="deviceSelect">Device</label>
+                    <select id="deviceSelect" class="select-input">
+                        <option value="">Select a device…</option>
+                    </select>
+                </div>
                 <div class="search-wrap">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <circle cx="11" cy="11" r="8"/>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                     <input
-                        id="deviceSearch"
+                        id="portSearch"
                         class="search-input"
                         type="search"
-                        placeholder="Search devices…"
+                        placeholder="Search ports…"
                         autocomplete="off"
                         spellcheck="false"
+                        disabled
                     >
                 </div>
-                <span class="stat-pill"><strong id="totalCount">0</strong> devices</span>
-                <button type="button" class="stat-pill stat-pill--filter" id="filterUp" data-filter="up" aria-pressed="false">
+                <span class="stat-pill"><strong id="totalCount">0</strong> ports</span>
+                <button type="button" class="stat-pill stat-pill--filter" id="filterUp" data-filter="up" aria-pressed="false" disabled>
                     <span class="status-dot status-dot--up"></span> <strong id="upCount">0</strong> up
                 </button>
-                <button type="button" class="stat-pill stat-pill--filter" id="filterDown" data-filter="down" aria-pressed="false">
+                <button type="button" class="stat-pill stat-pill--filter" id="filterDown" data-filter="down" aria-pressed="false" disabled>
                     <span class="status-dot status-dot--down"></span> <strong id="downCount">0</strong> down
                 </button>
             </div>
 
-            <section class="panel" id="devicesPanel">
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
-                    Loading devices from LibreNMS…
-                </div>
+            <section class="panel" id="portsPanel">
+                <div class="empty-state">Select a device to load its ports.</div>
             </section>
         </main>
     </div>
 
-    <script type="module" src="js/devices.js"></script>
+    <script type="module" src="js/ports.js"></script>
 </body>
 </html>
