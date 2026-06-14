@@ -321,8 +321,7 @@ else
         echo "[!] API token already exists for '${API_USER}'. Skipping generation."
     else
         API_TOKEN=$(openssl rand -hex 16)
-        API_TOKEN_HASH=$(echo -n "$API_TOKEN" | md5sum | awk '{print $1}')
-        mysql -u root -e "INSERT INTO ${DB_NAME}.api_tokens (user_id, token_hash, description, disabled) VALUES (${API_USER_ID}, '${API_TOKEN_HASH}', '${API_TOKEN_DESCRIPTION}', 0);"
+        mysql -u root -e "INSERT INTO ${DB_NAME}.api_tokens (user_id, token_hash, description, disabled) VALUES (${API_USER_ID}, '${API_TOKEN}', '${API_TOKEN_DESCRIPTION}', 0);"
         GENERATED_API_TOKEN="$API_TOKEN"
         echo "[+] API token created for '${API_USER}'."
     fi

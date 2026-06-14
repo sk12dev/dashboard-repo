@@ -27,9 +27,8 @@ if [ -z "$API_USER_ID" ]; then
 fi
 
 API_TOKEN=$(openssl rand -hex 16)
-API_TOKEN_HASH=$(echo -n "$API_TOKEN" | md5sum | awk '{print $1}')
 
-mysql -u root -e "INSERT INTO ${DB_NAME}.api_tokens (user_id, token_hash, description, disabled) VALUES (${API_USER_ID}, '${API_TOKEN_HASH}', '${API_TOKEN_DESCRIPTION}', 0);"
+mysql -u root -e "INSERT INTO ${DB_NAME}.api_tokens (user_id, token_hash, description, disabled) VALUES (${API_USER_ID}, '${API_TOKEN}', '${API_TOKEN_DESCRIPTION}', 0);"
 
 mkdir -p "$CONFIG_DIR"
 
