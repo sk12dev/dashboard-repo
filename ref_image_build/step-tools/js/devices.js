@@ -13,6 +13,7 @@ const state = {
     sortKey: 'sysName',
     sortDir: 'asc',
     search: '',
+    statusFilter: 'all',
 };
 
 const elements = {
@@ -22,17 +23,12 @@ const elements = {
     totalCount: document.getElementById('totalCount'),
     upCount: document.getElementById('upCount'),
     downCount: document.getElementById('downCount'),
+    filterUp: document.getElementById('filterUp'),
+    filterDown: document.getElementById('filterDown'),
     panel: document.getElementById('devicesPanel'),
 };
 
 const columns = [
-    {
-        key: 'status',
-        label: '',
-        type: 'status',
-        className: 'col-status',
-        sortValue: (d) => (isDeviceUp(d) ? 1 : 0),
-    },
     {
         key: 'sysName',
         label: 'Device',
@@ -100,12 +96,20 @@ function renderHeader() {
 }
 
 function filteredDevices() {
-    const query = state.search.trim().toLowerCase();
-    if (!query) {
-        return state.devices;
+    let devices = state.devices;
+
+    if (state.statusFilter === 'up') {
+        devices = devices.filter(isDeviceUp);
+    } else if (state.statusFilter === 'down') {
+        devices = devices.filter((device) => !isDeviceUp(device));
     }
 
-    return state.devices.filter((device) => {
+    const query = state.search.trim().toLowerCase();
+    if (!query) {
+        return devices;
+    }
+
+    return devices.filter((device) => {
         const haystack = [
             device.device_id,
             device.sysName,
@@ -148,9 +152,12 @@ function renderDeviceCell(device) {
     const name = device.sysName || device.hostname || '—';
     const ip = deviceIp(device);
 
-    return `<div class="cell-stack">
-        <span class="cell-primary" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
-        <span class="cell-secondary">${escapeHtml(ip)}</span>
+    return `<div class="device-cell">
+        ${renderStatus(device)}
+        <div class="cell-stack">
+            <span class="cell-primary" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+            <span class="cell-secondary">${escapeHtml(ip)}</span>
+        </div>
     </div>`;
 }
 
@@ -208,7 +215,6 @@ function renderRow(device) {
     const location = device.location || '—';
 
     return `<tr>
-        <td class="col-status">${renderStatus(device)}</td>
         <td class="col-device">${renderDeviceCell(device)}</td>
         <td class="col-location col-truncate" title="${escapeHtml(location)}">${escapeHtml(truncate(location, 44))}</td>
         <td class="col-hardware">${renderHardwareCell(device)}</td>
@@ -218,15 +224,56 @@ function renderRow(device) {
     </tr>`;
 }
 
+function resetDropdownMenu(menu) {
+    menu.hidden = true;
+    menu.classList.remove('dropdown-menu--fixed');
+    menu.style.top = '';
+    menu.style.left = '';
+}
+
+function positionDropdownMenu(trigger, menu) {
+    menu.hidden = false;
+    menu.classList.add('dropdown-menu--fixed');
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth;
+    const menuHeight = menu.offsetHeight;
+    const gap = 4;
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const openUpward = spaceBelow < menuHeight + gap && triggerRect.top > menuHeight + gap;
+
+    const top = openUpward
+        ? triggerRect.top - menuHeight - gap
+        : triggerRect.bottom + gap;
+
+    let left = triggerRect.right - menuWidth;
+    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+
+    menu.style.top = `${top}px`;
+    menu.style.left = `${left}px`;
+}
+
 function closeAllDropdowns() {
     document.querySelectorAll('[data-dropdown]').forEach((dropdown) => {
         const trigger = dropdown.querySelector('.dropdown-trigger');
         const menu = dropdown.querySelector('.dropdown-menu');
-        if (trigger && menu) {
+        if (trigger) {
             trigger.setAttribute('aria-expanded', 'false');
-            menu.hidden = true;
+        }
+        if (menu) {
+            resetDropdownMenu(menu);
         }
     });
+}
+
+function updateFilterPills() {
+    const isUp = state.statusFilter === 'up';
+    const isDown = state.statusFilter === 'down';
+
+    elements.filterUp?.classList.toggle('is-active', isUp);
+    elements.filterUp?.setAttribute('aria-pressed', String(isUp));
+    elements.filterDown?.classList.toggle('is-active', isDown);
+    elements.filterDown?.setAttribute('aria-pressed', String(isDown));
 }
 
 function updateStats(devices) {
@@ -241,10 +288,17 @@ function updateStats(devices) {
 function renderTable() {
     const visible = sortedDevices(filteredDevices());
     updateStats(state.devices);
+    updateFilterPills();
 
     if (visible.length === 0) {
+        const emptyMessage = state.statusFilter === 'up'
+            ? 'No devices are currently up.'
+            : state.statusFilter === 'down'
+                ? 'No devices are currently down.'
+                : 'No devices match your search.';
+
         elements.tableBody.innerHTML = `<tr><td colspan="${columns.length}">
-            <div class="empty-state">No devices match your search.</div>
+            <div class="empty-state">${emptyMessage}</div>
         </td></tr>`;
         return;
     }
@@ -302,6 +356,14 @@ elements.searchInput?.addEventListener(
     })
 );
 
+function toggleStatusFilter(filter) {
+    state.statusFilter = state.statusFilter === filter ? 'all' : filter;
+    renderTable();
+}
+
+elements.filterUp?.addEventListener('click', () => toggleStatusFilter('up'));
+elements.filterDown?.addEventListener('click', () => toggleStatusFilter('down'));
+
 document.addEventListener('click', (event) => {
     const header = event.target.closest('[data-key]');
     if (header?.closest('#devicesTableHead')) {
@@ -329,12 +391,12 @@ document.addEventListener('click', (event) => {
 
         if (!isOpen && menu) {
             trigger.setAttribute('aria-expanded', 'true');
-            menu.hidden = false;
+            positionDropdownMenu(trigger, menu);
         }
         return;
     }
 
-    if (!event.target.closest('[data-dropdown]')) {
+    if (!event.target.closest('.dropdown-menu--fixed') && !event.target.closest('[data-dropdown]')) {
         closeAllDropdowns();
     }
 });
@@ -344,5 +406,8 @@ document.addEventListener('keydown', (event) => {
         closeAllDropdowns();
     }
 });
+
+window.addEventListener('resize', closeAllDropdowns);
+document.addEventListener('scroll', closeAllDropdowns, true);
 
 loadDevices();

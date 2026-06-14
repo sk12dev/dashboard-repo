@@ -187,6 +187,27 @@ a:hover {
     font-weight: 600;
 }
 
+.stat-pill--filter {
+    cursor: pointer;
+    font: inherit;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.stat-pill--filter:hover {
+    background: var(--surface-elevated);
+    border-color: var(--text-muted);
+}
+
+.stat-pill--filter.is-active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 1px var(--accent-soft);
+}
+
+.stat-pill--filter.is-active strong {
+    color: var(--accent-hover);
+}
+
 .status-dot {
     width: 8px;
     height: 8px;
@@ -213,7 +234,7 @@ a:hover {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .table-wrap {
@@ -337,6 +358,18 @@ a:hover {
     min-width: 0;
 }
 
+.device-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    min-width: 0;
+}
+
+.device-cell .status-dot {
+    margin-top: 0.35rem;
+    flex-shrink: 0;
+}
+
 .cell-primary {
     font-weight: 500;
     font-family: var(--font-mono);
@@ -405,6 +438,14 @@ a:hover {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow);
+}
+
+.dropdown-menu--fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: auto;
+    z-index: 1000;
 }
 
 .dropdown-item {

@@ -41,8 +41,12 @@
                     >
                 </div>
                 <span class="stat-pill"><strong id="totalCount">0</strong> devices</span>
-                <span class="stat-pill"><span class="status-dot status-dot--up"></span> <strong id="upCount">0</strong> up</span>
-                <span class="stat-pill"><span class="status-dot status-dot--down"></span> <strong id="downCount">0</strong> down</span>
+                <button type="button" class="stat-pill stat-pill--filter" id="filterUp" data-filter="up" aria-pressed="false">
+                    <span class="status-dot status-dot--up"></span> <strong id="upCount">0</strong> up
+                </button>
+                <button type="button" class="stat-pill stat-pill--filter" id="filterDown" data-filter="down" aria-pressed="false">
+                    <span class="status-dot status-dot--down"></span> <strong id="downCount">0</strong> down
+                </button>
             </div>
 
             <section class="panel" id="devicesPanel">
