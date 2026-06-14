@@ -25,7 +25,7 @@ read WEBSERVERHOSTNAME
 echo "Please enter the Database password for the LibreNMS server: "
 read DATABASEPASSWORD
 
-echo "Please enter the password for the librenms user: "
+echo "Please enter the password for the librenms user (also used for the web admin account): "
 read -s LIBRENMS_PASSWORD
 echo
 
@@ -247,15 +247,86 @@ echo "##################################"
 cp /opt/librenms/misc/librenms.logrotate /etc/logrotate.d/librenms
 
 echo
-echo "#######################"
-echo "Fixing up the .env file"
-echo "#######################"
+echo "##########################################"
+echo "Configuring LibreNMS application (.env)"
+echo "##########################################"
 
-sed -i "s/#DB_HOST=/DB_HOST=localhost/" /opt/librenms/.env
-sed -i "s/#DB_DATABASE=/DB_DATABASE=librenms/" /opt/librenms/.env
-sed -i "s/#DB_USERNAME=/DB_USERNAME=librenms/" /opt/librenms/.env
-sed -i "s/#DB_PASSWORD=/DB_PASSWORD=$DATABASEPASSWORD/" /opt/librenms/.env
+LIBRENMS_PATH="/opt/librenms"
+DB_HOST="127.0.0.1"
+DB_NAME="librenms"
+DB_USER="librenms"
+DB_PASS="$DATABASEPASSWORD"
+APP_URL="http://${WEBSERVERHOSTNAME}"
+ADMIN_USER="admin"
+ADMIN_PASS="$LIBRENMS_PASSWORD"
+API_USER="api-ro"
+API_PASS="stepcg123"
+API_EMAIL="api-ro@stepcg.com"
+API_TOKEN_DESCRIPTION="STEP-NetTools Auto Generated Token"
+GENERATED_API_TOKEN=""
 
+cd "$LIBRENMS_PATH"
+
+if [ ! -f .env ]; then
+    cp .env.example .env
+    chown librenms:librenms .env
+fi
+
+sed -i "s|^#\?DB_HOST=.*|DB_HOST=${DB_HOST}|" .env
+sed -i "s|^#\?DB_DATABASE=.*|DB_DATABASE=${DB_NAME}|" .env
+sed -i "s|^#\?DB_USERNAME=.*|DB_USERNAME=${DB_USER}|" .env
+sed -i "s|^#\?DB_PASSWORD=.*|DB_PASSWORD=${DB_PASS}|" .env
+sed -i "s|^#\?APP_URL=.*|APP_URL=${APP_URL}|" .env
+grep -q '^APP_URL=' .env || echo "APP_URL=${APP_URL}" >> .env
+
+echo "[+] Generating Laravel Application Key..."
+sudo -u librenms php artisan key:generate --force
+
+echo "[+] Running database migrations (this may take a moment)..."
+sudo -u librenms ./lnms migrate --force
+
+echo "[+] Creating administrative user account..."
+if sudo -u librenms ./lnms user:list | grep -q " ${ADMIN_USER} "; then
+    echo "[!] User '${ADMIN_USER}' already exists. Skipping creation."
+else
+    sudo -u librenms ./lnms user:add --password="${ADMIN_PASS}" --role=admin "${ADMIN_USER}"
+    echo "[+] User '${ADMIN_USER}' created successfully."
+fi
+
+echo "[+] Creating API read-only user account..."
+if sudo -u librenms ./lnms user:list | grep -q " ${API_USER} "; then
+    echo "[!] User '${API_USER}' already exists. Skipping creation."
+else
+    sudo -u librenms ./lnms user:add \
+        --password="${API_PASS}" \
+        --email="${API_EMAIL}" \
+        --role=global-read \
+        "${API_USER}"
+    echo "[+] User '${API_USER}' created successfully with global-read permissions."
+fi
+
+echo "[+] Generating API token for '${API_USER}'..."
+API_USER_ID=$(mysql -u root -Nse "SELECT user_id FROM ${DB_NAME}.users WHERE username='${API_USER}';")
+
+if [ -z "$API_USER_ID" ]; then
+    echo "[-] Error: User '${API_USER}' not found in database. Skipping API token generation."
+else
+    EXISTING_TOKENS=$(mysql -u root -Nse "SELECT COUNT(*) FROM ${DB_NAME}.api_tokens WHERE user_id=${API_USER_ID};")
+    if [ "${EXISTING_TOKENS}" -gt 0 ]; then
+        echo "[!] API token already exists for '${API_USER}'. Skipping generation."
+    else
+        API_TOKEN=$(openssl rand -hex 16)
+        API_TOKEN_HASH=$(echo -n "$API_TOKEN" | md5sum | awk '{print $1}')
+        mysql -u root -e "INSERT INTO ${DB_NAME}.api_tokens (user_id, token_hash, description, disabled) VALUES (${API_USER_ID}, '${API_TOKEN_HASH}', '${API_TOKEN_DESCRIPTION}', 0);"
+        GENERATED_API_TOKEN="$API_TOKEN"
+        echo "[+] API token created for '${API_USER}'."
+    fi
+fi
+
+echo "[+] Running final validation check..."
+echo "----------------------------------------------------"
+sudo -u librenms ./validate.php
+echo "----------------------------------------------------"
 
 echo
 echo "#####################"
@@ -277,6 +348,7 @@ done
 
 echo "####################################################"
 echo "LibreNMS installation and configuration complete"
+echo "Login at: ${APP_URL}"
 echo "####################################################"
 
 echo
@@ -365,9 +437,29 @@ EOF
 echo "Restarting Nginx..."
 systemctl restart nginx
 
+
+
 echo "####################################################"
 echo "Installation and configuration complete"
 echo "####################################################"
+echo ""
+echo "LibreNMS"
+echo "--------"
+echo "  Login URL:  ${APP_URL}"
+echo "  Admin user: ${ADMIN_USER}"
+echo ""
+echo "LibreNMS API (STEP NetTools)"
+echo "----------------------------"
+echo "  API user:   ${API_USER}"
+if [ -n "$GENERATED_API_TOKEN" ]; then
+    echo "  API token:  ${GENERATED_API_TOKEN}"
+    echo ""
+    echo "  Copy the API token now. It will not be shown again."
+else
+    echo "  API token:  (not generated — user may already have a token)"
+    echo ""
+    echo "  To create a new token, run: ref_image_build/etc/generate-api-key.sh"
+fi
 echo ""
 echo "Customer Web Installer"
 echo "----------------------"
