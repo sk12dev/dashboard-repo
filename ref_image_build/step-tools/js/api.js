@@ -75,8 +75,50 @@ export function compareValues(a, b, type = 'string') {
     if (type === 'number') {
         return Number(a) - Number(b);
     }
+    if (type === 'date') {
+        return new Date(a).getTime() - new Date(b).getTime();
+    }
     return String(a ?? '').localeCompare(String(b ?? ''), undefined, {
         numeric: true,
         sensitivity: 'base',
     });
+}
+
+export function formatTimestamp(value) {
+    if (!value) {
+        return '—';
+    }
+    const date = new Date(String(value).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+    return date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+}
+
+export function alertStateMeta(state) {
+    const value = String(state ?? '');
+    if (value === '1') {
+        return { label: 'Active', className: 'state-badge--active' };
+    }
+    if (value === '2') {
+        return { label: 'Acknowledged', className: 'state-badge--ack' };
+    }
+    return { label: 'Cleared', className: 'state-badge--cleared' };
+}
+
+export function severityMeta(severity) {
+    const value = String(severity ?? 'ok').toLowerCase();
+    if (value === 'critical') {
+        return { label: 'Critical', className: 'severity-badge--critical' };
+    }
+    if (value === 'warning') {
+        return { label: 'Warning', className: 'severity-badge--warning' };
+    }
+    return { label: 'OK', className: 'severity-badge--ok' };
 }
