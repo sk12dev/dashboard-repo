@@ -328,6 +328,21 @@ else
     fi
 fi
 
+echo "[+] Marking installation complete (skip web installer)..."
+# composer_wrapper sets INSTALL=true when config.php is missing; the web installer
+# finish step removes it and creates config.php — do the same after CLI setup.
+sed -i '/^INSTALL=/d' .env
+if [ ! -f config.php ]; then
+    cp config.php.default config.php
+    chown librenms:librenms config.php
+fi
+if ! grep -q '^NODE_ID=' .env; then
+    NODE_ID=$(sudo -u librenms php -r 'echo uniqid();')
+    echo "NODE_ID=${NODE_ID}" >> .env
+fi
+chown librenms:librenms .env
+sudo -u librenms php artisan config:clear
+
 echo "[+] Running final validation check..."
 echo "----------------------------------------------------"
 if ! sudo -u librenms ./validate.php; then
