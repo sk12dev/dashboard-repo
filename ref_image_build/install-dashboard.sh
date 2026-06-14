@@ -389,7 +389,7 @@ apt-get install -y syslog-ng
 
 
 echo "Copying the STEP Specific syslog-ng configuration files"
-#cp -r /opt/dashboard-repo/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
+cp -r /opt/dashboard-repo/ref_image_build/etc/syslog-ng/conf.d/. /etc/syslog-ng/conf.d/
 
 echo "Creating SQL database for syslog-ng"
 mysql -u root -p$DATABASEPASSWORD < /opt/dashboard-repo/ref_image_build/etc/syslog-ng/create_ilog_db.sql
@@ -411,7 +411,57 @@ echo
 echo "####################################################"
 echo "Installing and Configuring STEP NetTools"
 echo "####################################################"
-# TO DO: Install and configure STEP NetTools
+mkdir -p /opt/step-tools
+cp -r /opt/dashboard-repo/ref_image_build/step-tools/. /opt/step-tools/
+chown -R www-data:www-data /opt/step-tools
+chmod -R 755 /opt/step-tools
+
+mkdir -p /etc/step-tools
+if [ -n "$GENERATED_API_TOKEN" ]; then
+    cat << EOF > /etc/step-tools/config.php
+<?php
+
+return [
+    'librenms_url' => '${APP_URL}',
+    'api_token' => '${GENERATED_API_TOKEN}',
+];
+EOF
+    chmod 640 /etc/step-tools/config.php
+    chown root:www-data /etc/step-tools/config.php
+    echo "[+] STEP NetTools API config written to /etc/step-tools/config.php"
+else
+    echo "[!] No new API token generated; run ref_image_build/etc/generate-api-key.sh to configure STEP NetTools"
+fi
+
+chmod +x /opt/dashboard-repo/ref_image_build/etc/generate-api-key.sh
+ln -sf /opt/dashboard-repo/ref_image_build/etc/generate-api-key.sh /usr/local/bin/generate-api-key.sh
+
+cat << EOF > /etc/nginx/conf.d/step-tools.conf
+server {
+    listen 8081;
+    listen [::]:8081;
+
+    root /opt/step-tools/;
+    index index.html;
+
+    server_name _;
+
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+    }
+
+    location ~ ^/includes/ {
+        deny all;
+    }
+}
+EOF
+
+echo "[+] STEP NetTools available on port 8081"
 
 echo
 echo "####################################################"
@@ -480,8 +530,12 @@ if [ -n "$GENERATED_API_TOKEN" ]; then
 else
     echo "  API token:  (not generated — user may already have a token)"
     echo ""
-    echo "  To create a new token, run: ref_image_build/etc/generate-api-key.sh"
+    echo "  To create a new token, run: generate-api-key.sh"
 fi
+echo ""
+echo "STEP NetTools"
+echo "-------------"
+echo "  Web UI:     http://${WEBSERVERHOSTNAME}:8081/"
 echo ""
 echo "Customer Web Installer"
 echo "----------------------"

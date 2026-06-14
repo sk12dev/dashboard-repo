@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STEP NetTools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">STEP</span>CG
+                <span class="brand-sub">NetTools</span>
+            </a>
+            <nav class="header-nav">
+                <a class="nav-link is-active" href="index.html">Tools</a>
+                <a class="nav-link" href="devices.html">Devices</a>
+            </nav>
+        </header>
+
+        <main class="app-main">
+            <div class="page-header">
+                <h1 class="page-title">Network Tools</h1>
+                <p class="page-subtitle">LibreNMS-powered utilities for monitoring and managing your network infrastructure.</p>
+            </div>
+
+            <div class="tool-grid">
+                <a class="tool-card" href="devices.html">
+                    <div class="tool-card-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8M12 17v4"/>
+                        </svg>
+                    </div>
+                    <div class="tool-card-title">Device Inventory</div>
+                    <p class="tool-card-desc">Search, sort, and browse all monitored devices with status, location, hardware, and uptime.</p>
+                    <span class="tool-card-meta">Open tool →</span>
+                </a>
+
+                <article class="tool-card" style="opacity: 0.55; pointer-events: none;">
+                    <div class="tool-card-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="tool-card-title">Alerts</div>
+                    <p class="tool-card-desc">View active alerts and incident history across your fleet.</p>
+                    <span class="tool-card-meta">Coming soon</span>
+                </article>
+
+                <article class="tool-card" style="opacity: 0.55; pointer-events: none;">
+                    <div class="tool-card-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </div>
+                    <div class="tool-card-title">Port Explorer</div>
+                    <p class="tool-card-desc">Inspect interface status and utilization per device.</p>
+                    <span class="tool-card-meta">Coming soon</span>
+                </article>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

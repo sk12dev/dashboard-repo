@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Local development override. Copy to config.local.php and fill in values.
+ * On the appliance, /etc/step-tools/config.php is used instead.
+ */
+return [
+    'librenms_url' => 'http://your-librenms-host',
+    'api_token' => 'your-api-token-here',
+];

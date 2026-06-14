@@ -608,7 +608,7 @@
                         if (seconds < 0) {
                             clearInterval(timer);
                             msgDiv.textContent = 'Redirecting now...';
-                            window.location.href = 'http://' + result.new_ip + '/?step=2';
+                            window.location.href = 'http://' + result.new_ip + ':8080/?step=2';
                         }
                     }, 1000);
                 } else {
