@@ -160,12 +160,9 @@ export function formatBitsRate(octetsPerSecond) {
 }
 
 export function formatPortSpeed(port) {
-    const highSpeed = Number(port.ifHighSpeed);
-    if (Number.isFinite(highSpeed) && highSpeed > 0) {
-        if (highSpeed >= 1000) {
-            return `${(highSpeed / 1000).toFixed(highSpeed % 1000 === 0 ? 0 : 1)} Gbps`;
-        }
-        return `${highSpeed} Mbps`;
+    const descrSpeed = String(port.port_descr_speed ?? '').trim();
+    if (descrSpeed) {
+        return descrSpeed;
     }
 
     const speed = Number(port.ifSpeed);
@@ -177,6 +174,9 @@ export function formatPortSpeed(port) {
     }
     if (speed >= 1_000_000) {
         return `${(speed / 1_000_000).toFixed(0)} Mbps`;
+    }
+    if (speed >= 1_000) {
+        return `${(speed / 1_000).toFixed(0)} Kbps`;
     }
     return `${speed} bps`;
 }

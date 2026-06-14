@@ -18,8 +18,8 @@ const PORT_COLUMNS = [
     'ifAlias',
     'ifOperStatus',
     'ifAdminStatus',
-    'ifHighSpeed',
     'ifSpeed',
+    'port_descr_speed',
     'ifDuplex',
     'ifInOctets_rate',
     'ifOutOctets_rate',
@@ -76,7 +76,7 @@ const columns = [
         key: 'speed',
         label: 'Speed',
         className: 'col-speed',
-        sortValue: (p) => Number(p.ifHighSpeed) || Number(p.ifSpeed) || 0,
+        sortValue: (p) => Number(p.ifSpeed) || 0,
         type: 'number',
     },
     {
