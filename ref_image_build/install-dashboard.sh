@@ -25,8 +25,13 @@ read WEBSERVERHOSTNAME
 echo "Please enter the Database password for the LibreNMS server: "
 read DATABASEPASSWORD
 
-echo "Please enter the password for the librenms user (also used for the web admin account): "
+echo "Please enter the password for the librenms system user: "
 read -s LIBRENMS_PASSWORD
+echo
+
+echo "Please enter the password for the LibreNMS web admin login (user: admin)"
+echo "Make sure this password is strong or install will fail: "
+read -s WEB_ADMIN_PASSWORD
 echo
 
 echo
@@ -258,7 +263,7 @@ DB_USER="librenms"
 DB_PASS="$DATABASEPASSWORD"
 APP_URL="http://${WEBSERVERHOSTNAME}"
 ADMIN_USER="admin"
-ADMIN_PASS="$LIBRENMS_PASSWORD"
+ADMIN_PASS="$WEB_ADMIN_PASSWORD"
 API_USER="api-ro"
 API_PASS="stepcg123"
 API_EMAIL="api-ro@stepcg.com"
