@@ -56,7 +56,7 @@ function step_tools_librenms_request(string $path, string $method = 'GET', ?stri
     }
 
     $pathOnly = strtok($path, '?') ?: $path;
-    if (!preg_match('#^v0/[a-zA-Z0-9_./\-]+$#', $pathOnly)) {
+    if (!preg_match('#^v0(/[a-zA-Z0-9_./\-]+)?$#', $pathOnly)) {
         return [
             'ok' => false,
             'status' => 400,
