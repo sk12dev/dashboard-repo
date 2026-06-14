@@ -330,7 +330,9 @@ fi
 
 echo "[+] Running final validation check..."
 echo "----------------------------------------------------"
-sudo -u librenms ./validate.php
+if ! sudo -u librenms ./validate.php; then
+    echo "[!] Validation reported issues. Review the output above; installation will continue."
+fi
 echo "----------------------------------------------------"
 
 echo
