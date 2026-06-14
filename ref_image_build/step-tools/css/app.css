@@ -79,12 +79,6 @@ a:hover {
     color: #ef4444;
 }
 
-.brand-sub {
-    color: var(--text-muted);
-    font-weight: 500;
-    font-size: 0.85rem;
-}
-
 .header-nav {
     display: flex;
     gap: 0.5rem;
@@ -285,58 +279,146 @@ a:hover {
     background: rgba(255, 255, 255, 0.02);
 }
 
-.data-table .col-id {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    width: 4rem;
-}
-
 .data-table .col-status {
-    width: 3rem;
+    width: 2.5rem;
     text-align: center;
 }
 
-.data-table .col-name {
-    font-weight: 500;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-}
-
-.data-table .col-ip {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-}
-
-.data-table .col-muted {
-    color: var(--text-muted);
-}
-
 .data-table .col-uptime {
+    width: 5.5rem;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
 }
 
-.link-group {
-    display: flex;
-    gap: 0.5rem;
+.data-table--compact {
+    table-layout: fixed;
 }
 
-.link-chip {
+.data-table--compact th,
+.data-table--compact td {
+    padding: 0.55rem 0.75rem;
+}
+
+.data-table .col-device {
+    width: 14%;
+    min-width: 9rem;
+}
+
+.data-table .col-location {
+    width: 18%;
+    min-width: 8rem;
+}
+
+.data-table .col-hardware {
+    width: 16%;
+    min-width: 8rem;
+}
+
+.data-table .col-software {
+    width: 12%;
+    min-width: 7rem;
+}
+
+.data-table .col-access {
+    width: 8.5rem;
+}
+
+.col-truncate {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cell-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.cell-primary {
+    font-weight: 500;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text);
+}
+
+.cell-secondary {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.cell-truncate {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--accent);
+    gap: 0.35rem;
+    padding: 0.35rem 0.6rem;
+    font-family: var(--font-sans);
     font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    color: var(--text);
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
 }
 
-.link-chip:hover {
-    background: rgba(59, 130, 246, 0.22);
+.dropdown-trigger:hover,
+.dropdown-trigger[aria-expanded="true"] {
+    background: var(--surface-hover);
+    border-color: var(--accent);
+}
+
+.dropdown-chevron {
+    opacity: 0.7;
+    transition: transform 0.15s;
+}
+
+.dropdown-trigger[aria-expanded="true"] .dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 20;
+    min-width: 7.5rem;
+    padding: 0.25rem;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text);
+    border-radius: 4px;
+    transition: background 0.12s;
+}
+
+.dropdown-item:hover {
+    background: var(--accent-soft);
     color: var(--accent-hover);
 }
 
