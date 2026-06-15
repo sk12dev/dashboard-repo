@@ -215,7 +215,8 @@
             cursor: not-allowed;
         }
 
-        #message {
+        #message,
+        #librepulseMessage {
             margin-top: 1.5rem;
             padding: 1rem;
             font-size: 0.9rem;
@@ -226,16 +227,19 @@
             min-height: 3rem;
         }
 
-        #message:not(:empty) {
+        #message:not(:empty),
+        #librepulseMessage:not(:empty) {
             color: var(--text);
         }
 
-        #message.error {
+        #message.error,
+        #librepulseMessage.error {
             color: var(--error);
             border-color: rgba(239, 68, 68, 0.3);
         }
 
-        #message.success {
+        #message.success,
+        #librepulseMessage.success {
             color: var(--success);
             border-color: rgba(34, 197, 94, 0.3);
         }
@@ -369,15 +373,24 @@
 
             <section class="wizard-step" id="step-2" data-step="2">
                 <header class="wizard-header">
-                    <h1 class="wizard-title" id="step2Title">LibreNMS Installation</h1>
-                    <p class="wizard-subtitle" id="step2Subtitle">Step 2: Your network is configured. Click below to begin the system installation.</p>
+                    <h1 class="wizard-title" id="step2Title">LibrePulse Configuration</h1>
+                    <p class="wizard-subtitle" id="step2Subtitle">Step 2: Connect this appliance to LibrePulse for remote monitoring.</p>
                 </header>
 
-                <div class="wizard-content">
-                    <button type="button" id="startBtn" class="btn" onclick="startInstall()">Start Installation</button>
-                </div>
+                <form id="librepulseForm" onsubmit="submitLibrePulseConfig(event)">
+                    <div class="form-group">
+                        <label for="api_key">LibrePulse API Key</label>
+                        <input type="password" id="api_key" name="api_key" placeholder="Enter your LibrePulse API key" required autocomplete="off">
+                    </div>
 
-                <pre id="terminal" class="terminal" role="log" aria-live="polite"></pre>
+                    <p class="wizard-subtitle" style="margin-bottom: 1.25rem;">
+                        A heartbeat cron job will run every 5 minutes against
+                        <span style="font-family: 'JetBrains Mono', monospace;">https://librepulse.solutionk12.com</span>.
+                    </p>
+
+                    <button type="submit" id="librepulseSubmitBtn">Save LibrePulse Configuration</button>
+                </form>
+                <div id="librepulseMessage" role="status" aria-live="polite"></div>
             </section>
 
             <nav class="wizard-steps-indicator" aria-label="Wizard steps" id="stepsIndicator"></nav>
@@ -387,7 +400,7 @@
     <script>
         const WIZARD_STEPS = [
             { title: 'Network', subtitle: 'Set the static IP address for this server' },
-            { title: 'Installation', subtitle: 'Your network is configured. Click below to begin the system installation.' }
+            { title: 'LibrePulse', subtitle: 'Connect this appliance to LibrePulse for remote monitoring' }
         ];
 
         const TOTAL_STEPS = WIZARD_STEPS.length;
@@ -435,6 +448,12 @@
             document.getElementById('interface').addEventListener('change', function (e) {
                 e.target.classList.remove('invalid');
             });
+            var apiKeyInput = document.getElementById('api_key');
+            if (apiKeyInput) {
+                apiKeyInput.addEventListener('input', function (e) {
+                    e.target.classList.remove('invalid');
+                });
+            }
         }
 
         function formatInterfaceLabel(iface) {
@@ -621,34 +640,53 @@
             }
         }
 
-        async function startInstall() {
-            const btn = document.getElementById('startBtn');
-            const terminal = document.getElementById('terminal');
+        async function submitLibrePulseConfig(event) {
+            event.preventDefault();
+
+            var msgDiv = document.getElementById('librepulseMessage');
+            var btn = document.getElementById('librepulseSubmitBtn');
+            var apiKeyInput = document.getElementById('api_key');
+            var apiKey = (apiKeyInput.value || '').trim();
+
+            apiKeyInput.classList.remove('invalid');
+
+            if (apiKey.length < 8) {
+                msgDiv.className = 'error';
+                msgDiv.textContent = 'API key must be at least 8 characters.';
+                apiKeyInput.classList.add('invalid');
+                return;
+            }
 
             btn.disabled = true;
-            btn.textContent = 'Installing...';
-            terminal.classList.add('visible');
-            terminal.textContent = 'Initializing setup...\n';
+            msgDiv.textContent = 'Saving LibrePulse configuration...';
+            msgDiv.className = '';
 
-            await fetch('start_install.php');
+            try {
+                var formData = new FormData();
+                formData.append('api_key', apiKey);
 
-            const pollInterval = setInterval(async function () {
-                try {
-                    const response = await fetch('read_log.php');
-                    const text = await response.text();
+                var response = await fetch('apply_librepulse.php', {
+                    method: 'POST',
+                    body: formData
+                });
 
-                    terminal.textContent = text;
-                    terminal.scrollTop = terminal.scrollHeight;
+                var result = await response.json();
 
-                    if (text.includes('LIBRENMS_SETUP_COMPLETE')) {
-                        clearInterval(pollInterval);
-                        btn.textContent = 'Installation Complete!';
-                        alert('Installation finished! Ready to redirect to LibreNMS.');
-                    }
-                } catch (error) {
-                    console.error('Error fetching log:', error);
+                if (result.status === 'success') {
+                    msgDiv.className = 'success';
+                    msgDiv.textContent = result.message + ' Setup is complete.';
+                    btn.textContent = 'Configuration Saved';
+                    apiKeyInput.disabled = true;
+                } else {
+                    msgDiv.className = 'error';
+                    msgDiv.textContent = 'Error: ' + (result.message || 'Configuration failed');
+                    btn.disabled = false;
                 }
-            }, 1000);
+            } catch (error) {
+                msgDiv.className = 'error';
+                msgDiv.textContent = 'Could not save LibrePulse configuration. Please try again.';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

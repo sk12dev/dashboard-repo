@@ -1,2 +1,2 @@
 www-data ALL=(root) NOPASSWD: /opt/customer-web-installer/scripts/apply-network-from-web.sh
-www-data ALL=(root) NOPASSWD: /opt/customer-web-installer/scripts/configure-dashboard-from-web.sh
+www-data ALL=(root) NOPASSWD: /opt/customer-web-installer/scripts/configure-librepulse-from-web.sh
