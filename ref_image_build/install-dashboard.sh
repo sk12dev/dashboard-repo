@@ -183,6 +183,28 @@ server {
  charset utf-8;
  gzip on;
  gzip_types text/css application/javascript text/javascript application/x-javascript image/svg+xml text/plain text/xsd text/xsl text/xml image/x-icon;
+
+ location = /step-tools {
+  return 301 /step-tools/;
+ }
+
+ location ^~ /step-tools/ {
+  alias /opt/step-tools/;
+  index index.html;
+
+  location ~ ^/step-tools/includes/ {
+   deny all;
+  }
+
+  location ~ \.php\$ {
+   include snippets/fastcgi-php.conf;
+   fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+   fastcgi_param SCRIPT_FILENAME \$request_filename;
+  }
+
+  try_files \$uri \$uri/ =404;
+ }
+
  location / {
   try_files \$uri \$uri/ /index.php?\$query_string;
  }
@@ -435,32 +457,9 @@ fi
 chmod +x /opt/dashboard-repo/ref_image_build/etc/generate-api-key.sh
 ln -sf /opt/dashboard-repo/ref_image_build/etc/generate-api-key.sh /usr/local/bin/generate-api-key.sh
 
-cat << EOF > /etc/nginx/conf.d/step-tools.conf
-server {
-    listen 8081;
-    listen [::]:8081;
+rm -f /etc/nginx/conf.d/step-tools.conf
 
-    root /opt/step-tools/;
-    index index.html;
-
-    server_name _;
-
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
-    }
-
-    location ~ ^/includes/ {
-        deny all;
-    }
-}
-EOF
-
-echo "[+] STEP NetTools available on port 8081"
+echo "[+] STEP NetTools available at ${APP_URL}/step-tools/"
 
 echo
 echo "####################################################"
@@ -534,7 +533,7 @@ fi
 echo ""
 echo "STEP NetTools"
 echo "-------------"
-echo "  Web UI:     http://${WEBSERVERHOSTNAME}:8081/"
+echo "  Web UI:     ${APP_URL}/step-tools/"
 echo ""
 echo "Customer Web Installer"
 echo "----------------------"
