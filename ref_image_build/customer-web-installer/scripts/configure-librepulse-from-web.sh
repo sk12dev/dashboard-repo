@@ -30,6 +30,20 @@ fi
 : > "$LOG_FILE"
 log "Starting LibrePulse configuration"
 
+if command -v ensure-rostats-user.sh &>/dev/null; then
+    ensure-rostats-user.sh >> "$LOG_FILE" 2>&1
+elif [[ -x /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh ]]; then
+    bash /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh >> "$LOG_FILE" 2>&1
+else
+    mysql -u root <<'EOF' >> "$LOG_FILE" 2>&1
+CREATE USER IF NOT EXISTS 'rostats'@'localhost' IDENTIFIED BY 'rostats';
+GRANT SELECT ON librenms.* TO 'rostats'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+    echo "[+] MySQL user rostats@localhost ready (SELECT on librenms.*)" >> "$LOG_FILE"
+fi
+log "MySQL rostats user ready"
+
 if [[ ! -f "$TMP_KEY_FILE" ]]; then
     log "ERROR: API key file not found at $TMP_KEY_FILE"
     echo "API key file not found at $TMP_KEY_FILE" >&2

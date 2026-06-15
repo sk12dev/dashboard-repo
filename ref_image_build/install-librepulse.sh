@@ -31,6 +31,19 @@ wget -q -O "$HEARTBEAT_SCRIPT" "$HEARTBEAT_URL"
 chmod +x "$HEARTBEAT_SCRIPT"
 echo "[+] Heartbeat script installed at ${HEARTBEAT_SCRIPT}"
 
+if command -v ensure-rostats-user.sh &>/dev/null; then
+    ensure-rostats-user.sh
+elif [[ -x /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh ]]; then
+    bash /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh
+else
+    mysql -u root <<'EOF'
+CREATE USER IF NOT EXISTS 'rostats'@'localhost' IDENTIFIED BY 'rostats';
+GRANT SELECT ON librenms.* TO 'rostats'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+    echo "[+] MySQL user rostats@localhost ready (SELECT on librenms.*)"
+fi
+
 echo
 echo "Enter your LibrePulse API key (paste from ${LIBREPULSE_URL}):"
 read -r -s API_KEY

@@ -423,6 +423,9 @@ systemctl restart syslog-ng
 echo "####################################################"
 echo "Installing LibrePulse"
 echo "####################################################"
+chmod +x /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh
+ln -sf /opt/dashboard-repo/ref_image_build/etc/mysql/ensure-rostats-user.sh /usr/local/bin/ensure-rostats-user.sh
+ensure-rostats-user.sh
 mkdir -p /opt/librepulse
 cd /opt/librepulse
 wget https://librepulse.solutionk12.com/scripts/librepulse-heartbeat.sh
