@@ -697,6 +697,129 @@ a:hover {
     }
 }
 
+.speedtest-panel {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.speedtest-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.speedtest-btn {
+    padding: 0.65rem 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--accent);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.speedtest-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.speedtest-btn.is-running {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #fecaca;
+}
+
+.speedtest-btn.is-running:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+.speedtest-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.speedtest-ip-pill strong {
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.speedtest-progress {
+    width: 100%;
+    height: 0.35rem;
+    background: var(--surface-elevated);
+    border-radius: 999px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.speedtest-progress.is-active {
+    opacity: 1;
+}
+
+.speedtest-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+    border-radius: 999px;
+    transition: width 0.35s ease;
+}
+
+.speedtest-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.speedtest-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.1rem 1.15rem;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+.speedtest-metric-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.speedtest-metric-value {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.speedtest-metric-unit {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.speedtest-metric--dl .speedtest-metric-value {
+    color: var(--accent-hover);
+}
+
+.speedtest-metric--ul .speedtest-metric-value {
+    color: var(--success);
+}
+
+.speedtest-metric--ping .speedtest-metric-value,
+.speedtest-metric--jit .speedtest-metric-value {
+    color: #f0abfc;
+}
+
 @media (max-width: 768px) {
     .app-header {
         flex-wrap: wrap;

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speedtest — STEP NetTools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <a class="brand" href="index.html"><span class="brand-mark">STEP</span> NetTools</a>
+            <nav class="header-nav">
+                <a class="nav-link" href="index.html">Tools</a>
+                <a class="nav-link" href="devices.html">Devices</a>
+                <a class="nav-link" href="alerts.html">Alerts</a>
+                <a class="nav-link" href="ports.html">Ports</a>
+                <a class="nav-link is-active" href="speedtest.html">Speedtest</a>
+            </nav>
+        </header>
+
+        <main class="app-main">
+            <div class="page-header">
+                <h1 class="page-title">Network Speedtest</h1>
+                <p class="page-subtitle">Measure download, upload, ping, and jitter from this appliance to your browser.</p>
+            </div>
+
+            <section class="panel speedtest-panel">
+                <div class="speedtest-controls">
+                    <button type="button" class="speedtest-btn" id="startStopBtn">Start test</button>
+                    <span class="stat-pill speedtest-ip-pill" id="ipArea" hidden>
+                        Client IP: <strong id="ip">—</strong>
+                    </span>
+                </div>
+
+                <div class="speedtest-progress" id="progressBar" aria-hidden="true">
+                    <div class="speedtest-progress-fill" id="progress"></div>
+                </div>
+
+                <div class="speedtest-metrics">
+                    <div class="speedtest-metric speedtest-metric--dl">
+                        <span class="speedtest-metric-label">Download</span>
+                        <span class="speedtest-metric-value" id="dlText">—</span>
+                        <span class="speedtest-metric-unit">Mbps</span>
+                    </div>
+                    <div class="speedtest-metric speedtest-metric--ul">
+                        <span class="speedtest-metric-label">Upload</span>
+                        <span class="speedtest-metric-value" id="ulText">—</span>
+                        <span class="speedtest-metric-unit">Mbps</span>
+                    </div>
+                    <div class="speedtest-metric speedtest-metric--ping">
+                        <span class="speedtest-metric-label">Ping</span>
+                        <span class="speedtest-metric-value" id="pingText">—</span>
+                        <span class="speedtest-metric-unit">ms</span>
+                    </div>
+                    <div class="speedtest-metric speedtest-metric--jit">
+                        <span class="speedtest-metric-label">Jitter</span>
+                        <span class="speedtest-metric-value" id="jitText">—</span>
+                        <span class="speedtest-metric-unit">ms</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="js/speedtest.js"></script>
+</body>
+</html>
