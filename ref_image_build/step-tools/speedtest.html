@@ -22,45 +22,172 @@
             </nav>
         </header>
 
-        <main class="app-main">
+        <main class="app-main speedtest-main">
             <div class="page-header">
                 <h1 class="page-title">Network Speedtest</h1>
                 <p class="page-subtitle">Measure download, upload, ping, and jitter from this appliance to your browser.</p>
             </div>
 
-            <section class="panel speedtest-panel">
-                <div class="speedtest-controls">
-                    <button type="button" class="speedtest-btn" id="startStopBtn">Start test</button>
-                    <span class="stat-pill speedtest-ip-pill" id="ipArea" hidden>
-                        Client IP: <strong id="ip">—</strong>
-                    </span>
-                </div>
+            <section class="panel speedtest-panel" id="speedtestPanel">
+                <div class="speedtest-hero">
+                    <div class="speedtest-flow" aria-hidden="true">
+                        <div class="speedtest-endpoint">
+                            <div class="speedtest-endpoint-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                    <path d="M8 21h8M12 17v4"/>
+                                </svg>
+                            </div>
+                            <span class="speedtest-endpoint-label">Your browser</span>
+                        </div>
 
-                <div class="speedtest-progress" id="progressBar" aria-hidden="true">
-                    <div class="speedtest-progress-fill" id="progress"></div>
+                        <div class="speedtest-link">
+                            <svg class="speedtest-link-svg speedtest-link-svg--h" viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true">
+                                <line class="speedtest-link-line" x1="0" y1="12" x2="200" y2="12"/>
+                                <line class="speedtest-link-pulse speedtest-link-pulse--h" x1="0" y1="12" x2="200" y2="12"/>
+                            </svg>
+                            <svg class="speedtest-link-svg speedtest-link-svg--v" viewBox="0 0 24 200" preserveAspectRatio="none" aria-hidden="true">
+                                <line class="speedtest-link-line" x1="12" y1="0" x2="12" y2="200"/>
+                                <line class="speedtest-link-pulse speedtest-link-pulse--v" x1="12" y1="0" x2="12" y2="200"/>
+                            </svg>
+                            <div class="speedtest-link-arrows">
+                                <span class="speedtest-arrow speedtest-arrow--dl" title="Download">↓</span>
+                                <span class="speedtest-arrow speedtest-arrow--ul" title="Upload">↑</span>
+                            </div>
+                        </div>
+
+                        <div class="speedtest-endpoint">
+                            <div class="speedtest-endpoint-icon speedtest-endpoint-icon--server">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                    <rect x="2" y="2" width="20" height="8" rx="2"/>
+                                    <rect x="2" y="14" width="20" height="8" rx="2"/>
+                                    <circle cx="6" cy="6" r="1" fill="currentColor"/>
+                                    <circle cx="6" cy="18" r="1" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="speedtest-endpoint-label">STEP appliance</span>
+                        </div>
+                    </div>
+
+                    <div class="speedtest-gauge-wrap">
+                        <svg class="speedtest-gauge" viewBox="0 0 220 220" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3b82f6"/>
+                                    <stop offset="100%" stop-color="#60a5fa"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="speedtest-gauge-track" cx="110" cy="110" r="92"/>
+                            <circle class="speedtest-gauge-fill" id="gaugeRing" cx="110" cy="110" r="92"/>
+                        </svg>
+                        <div class="speedtest-gauge-center">
+                            <span class="speedtest-phase" id="testPhase">Ready to test</span>
+                            <span class="speedtest-hero-value" id="heroValue">—</span>
+                            <span class="speedtest-hero-unit" id="heroUnit">Mbps</span>
+                        </div>
+                    </div>
+
+                    <div class="speedtest-actions">
+                        <button type="button" class="speedtest-btn" id="startStopBtn">
+                            <svg class="speedtest-btn-icon speedtest-btn-icon--play" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span id="startStopLabel">Start test</span>
+                        </button>
+                        <p class="speedtest-ip" id="ipArea" hidden>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            </svg>
+                            <span id="ip">—</span>
+                        </p>
+                    </div>
                 </div>
 
                 <div class="speedtest-metrics">
-                    <div class="speedtest-metric speedtest-metric--dl">
-                        <span class="speedtest-metric-label">Download</span>
-                        <span class="speedtest-metric-value" id="dlText">—</span>
-                        <span class="speedtest-metric-unit">Mbps</span>
-                    </div>
-                    <div class="speedtest-metric speedtest-metric--ul">
-                        <span class="speedtest-metric-label">Upload</span>
-                        <span class="speedtest-metric-value" id="ulText">—</span>
-                        <span class="speedtest-metric-unit">Mbps</span>
-                    </div>
-                    <div class="speedtest-metric speedtest-metric--ping">
-                        <span class="speedtest-metric-label">Ping</span>
-                        <span class="speedtest-metric-value" id="pingText">—</span>
-                        <span class="speedtest-metric-unit">ms</span>
-                    </div>
-                    <div class="speedtest-metric speedtest-metric--jit">
-                        <span class="speedtest-metric-label">Jitter</span>
-                        <span class="speedtest-metric-value" id="jitText">—</span>
-                        <span class="speedtest-metric-unit">ms</span>
-                    </div>
+                    <article class="speedtest-metric speedtest-metric--dl" id="metricDl" data-metric="dl">
+                        <div class="speedtest-metric-head">
+                            <div class="speedtest-metric-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="speedtest-metric-label">Download</h2>
+                                <p class="speedtest-metric-hint">Receive speed</p>
+                            </div>
+                        </div>
+                        <div class="speedtest-metric-body">
+                            <span class="speedtest-metric-value" id="dlText">—</span>
+                            <span class="speedtest-metric-unit">Mbps</span>
+                        </div>
+                        <div class="speedtest-metric-bar" aria-hidden="true">
+                            <div class="speedtest-metric-bar-fill" id="dlBar"></div>
+                        </div>
+                    </article>
+
+                    <article class="speedtest-metric speedtest-metric--ul" id="metricUl" data-metric="ul">
+                        <div class="speedtest-metric-head">
+                            <div class="speedtest-metric-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 19V5M5 12l7-7 7 7"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="speedtest-metric-label">Upload</h2>
+                                <p class="speedtest-metric-hint">Send speed</p>
+                            </div>
+                        </div>
+                        <div class="speedtest-metric-body">
+                            <span class="speedtest-metric-value" id="ulText">—</span>
+                            <span class="speedtest-metric-unit">Mbps</span>
+                        </div>
+                        <div class="speedtest-metric-bar" aria-hidden="true">
+                            <div class="speedtest-metric-bar-fill" id="ulBar"></div>
+                        </div>
+                    </article>
+
+                    <article class="speedtest-metric speedtest-metric--ping" id="metricPing" data-metric="ping">
+                        <div class="speedtest-metric-head">
+                            <div class="speedtest-metric-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="speedtest-metric-label">Ping</h2>
+                                <p class="speedtest-metric-hint">Round-trip latency</p>
+                            </div>
+                        </div>
+                        <div class="speedtest-metric-body">
+                            <span class="speedtest-metric-value" id="pingText">—</span>
+                            <span class="speedtest-metric-unit">ms</span>
+                        </div>
+                        <div class="speedtest-metric-bar" aria-hidden="true">
+                            <div class="speedtest-metric-bar-fill" id="pingBar"></div>
+                        </div>
+                    </article>
+
+                    <article class="speedtest-metric speedtest-metric--jit" id="metricJit" data-metric="jit">
+                        <div class="speedtest-metric-head">
+                            <div class="speedtest-metric-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12h3l3-8 4 16 3-8h5"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="speedtest-metric-label">Jitter</h2>
+                                <p class="speedtest-metric-hint">Latency variation</p>
+                            </div>
+                        </div>
+                        <div class="speedtest-metric-body">
+                            <span class="speedtest-metric-value" id="jitText">—</span>
+                            <span class="speedtest-metric-unit">ms</span>
+                        </div>
+                        <div class="speedtest-metric-bar" aria-hidden="true">
+                            <div class="speedtest-metric-bar-fill" id="jitBar"></div>
+                        </div>
+                    </article>
                 </div>
             </section>
         </main>
